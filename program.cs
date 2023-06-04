@@ -312,7 +312,7 @@ public class Program
         switch (command.Data.Name)
         {
             case "github":
-                await command.RespondAsync($"https://github.com/HybridsEgo/Cosmic-Drip");
+                await command.RespondAsync($"https://github.com/foco21/kyouko-translation");
                 break;
         }
     }
