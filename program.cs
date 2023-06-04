@@ -13,16 +13,16 @@ public class Program
 {
     private DiscordSocketClient? _client;
     private string? _memoryFilePath;
-    private string PersonalityFilePath = "personality.txt";
+    //private string PersonalityFilePath = "personality.txt";
     public string apiKeys = "keys.json";
     public JObject json = JObject.Parse(File.ReadAllText("keys.json"));
-    private string GetRandomPersonality()
-    {
-        var personalities = File.ReadAllLines("personality.txt");
-        var random = new Random();
-        var index = random.Next(0, personalities.Length);
-        return personalities[index];
-    }
+   // private string GetRandomPersonality()
+    //{
+       // var personalities = File.ReadAllLines("personality.txt");
+       // var random = new Random();
+       // var index = random.Next(0, personalities.Length);
+       //return personalities[index];
+   // }
     public static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
 
     public async Task MainAsync()
@@ -41,7 +41,7 @@ public class Program
         }
 
         // Set up memory file path
-        _memoryFilePath = "Insert folder path";
+        _memoryFilePath = @"C:\Users\summe\OneDrive\Documents\memory";
 
         // Set up Discord bot client
         _client = new DiscordSocketClient();
@@ -75,11 +75,23 @@ public class Program
     {
         try
         {
-
             if (!(message is SocketUserMessage msg)) return;
             if (msg.Author.IsBot) return;
 
             var context = new CommandContext(_client, msg);
+
+            var user = message.Author;
+            var memory = await GetUserMemory(user.Id);
+
+            if (string.IsNullOrEmpty(memory))
+            {
+                if (!memory.StartsWith("awaiting_language:"))
+                {
+                    await message.Channel.SendMessageAsync("Please provide me with a language to translate from and to");
+                    await SaveUserMemory(user.Id, $"awaiting_language:{message.Content}");
+                }
+                return;
+            }
 
 
             ulong colorize = 674068746167386149;
@@ -89,7 +101,7 @@ public class Program
             r = random.Next(0, 255); g = random.Next(0, 255); b = random.Next(0, 255);
             EmbedBuilder builder = new EmbedBuilder();
 
-         
+
             if (message.Channel.Id != 1091941641729888376 && message.Channel.Id != 1090479634715516948 && message.Channel.Id != 1089715502663880765 && message.Channel.Id != 587117758911873035) return;
 
             //if (message.Author.Id == 332582777897746444 && message.Author
@@ -112,25 +124,25 @@ public class Program
 
             if (filteredInput.Contains("::clear"))
             {
-                if (File.Exists(@"Insert folder path"))
+                if (File.Exists(@"C:\Users\summe\OneDrive\Documents\memory"))
                 {
                     // Delete the file for the current user
                     File.Delete(Path.Combine(_memoryFilePath, $"{message.Author.Id}.txt"));
                 }
 
                 // Delete all other memory files
-                var directory = new DirectoryInfo("insert folder path");
-    foreach (var file in directory.GetFiles("*.txt"))
-    {
-        if (file.Name.StartsWith("user_memory") && file.Name != _memoryFilePath)
-        {
-            file.Delete();
-        }
-    }
+                var directory = new DirectoryInfo(@"C:\Users\summe\OneDrive\Documents\memory");
+                foreach (var file in directory.GetFiles("*.txt"))
+                {
+                    if (file.Name.StartsWith("user_memory") && file.Name != _memoryFilePath)
+                    {
+                        file.Delete();
+                    }
+                }
 
-    Console.WriteLine("Memory files deleted.");
-    return;
-}
+                Console.WriteLine("Memory files deleted.");
+                return;
+            }
 
 
             if (input.Contains("@"))
@@ -143,12 +155,10 @@ public class Program
             var openai = new OpenAIAPI(openAIToken.ToString());
 
             // Check if user has interacted with the bot before
-            var user = message.Author;
-
-            var memory = await GetUserMemory(user.Id);
+            
 
             // Use OpenAI API to generate a response based on user memory and message content
-            var prompt = $"{GetRandomPersonality()} {memory} {message.Content}. (Act like you're Kyouko from Touhou Project .  (Don't read this aloud and dont talk about yourself in thirdperson or your name, use the context provided  to create a good reply))";
+            var prompt = $" {memory} {message.Content}. (you are a translate text from the user just do that directly .  (Don't read this aloud and dont talk about yourself in thirdperson or your name, use the context provided  to create a good reply))";
 
 
             // Store user memory in file
@@ -247,9 +257,20 @@ public class Program
         }
 
         var fileName = Path.Combine(_memoryFilePath, $"user_memory_{userId}.txt");
+
         using (StreamWriter writer = File.CreateText(fileName))
         {
-            await writer.WriteAsync(memory);
+            // Split the memory into lines
+            string[] lines = memory.Split('\n');
+
+            // Take only the first 5 lines
+            string[] firstFiveLines = lines.Take(10).ToArray();
+
+            // Join the lines back into a string
+            string truncatedMemory = string.Join('\n', firstFiveLines);
+
+            // Write the truncated memory to the file
+            await writer.WriteAsync(truncatedMemory);
         }
     }
 
@@ -262,7 +283,7 @@ public class Program
                 if (component.User.Id == 332582777897746444 || component.User.Id == 971242993774391396)
                 {
                     // Get the directory that contains the memory files
-                    string memoryDirectory = "Insert folder path";
+                    string memoryDirectory = @"C:\Users\summe\OneDrive\Documents\memory";
 
                     // Loop through all files in the directory
                     foreach (string filePath in Directory.GetFiles(memoryDirectory, "*.txt"))
