@@ -102,7 +102,8 @@ public class Program
             EmbedBuilder builder = new EmbedBuilder();
 
 
-            if (message.Channel.Id != 1091941641729888376 && message.Channel.Id != 1090479634715516948 && message.Channel.Id != 1089715502663880765 && message.Channel.Id != 587117758911873035) return;
+            if (message.Channel.Id != 123456789 && message.Channel.Id != 987654321) return;
+
 
             //if (message.Author.Id == 332582777897746444 && message.Author
 
