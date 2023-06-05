@@ -16,13 +16,13 @@ public class Program
     //private string PersonalityFilePath = "personality.txt";
     public string apiKeys = "keys.json";
     public JObject json = JObject.Parse(File.ReadAllText("keys.json"));
-   // private string GetRandomPersonality()
+    // private string GetRandomPersonality()
     //{
-       // var personalities = File.ReadAllLines("personality.txt");
-       // var random = new Random();
-       // var index = random.Next(0, personalities.Length);
-       //return personalities[index];
-   // }
+    // var personalities = File.ReadAllLines("personality.txt");
+    // var random = new Random();
+    // var index = random.Next(0, personalities.Length);
+    //return personalities[index];
+    // }
     public static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
 
     public async Task MainAsync()
@@ -102,7 +102,13 @@ public class Program
             EmbedBuilder builder = new EmbedBuilder();
 
 
-            if (message.Channel.Id != 123456789 && message.Channel.Id != 987654321) return;
+            if (message.Channel.Id != 1091941641729888376 && message.Channel.Id != 390025968816881664 && message.Channel.Id != 1090479634715516948)
+            {
+                // Bot can't talk in this channel, cancel the message
+                await message.DeleteAsync();
+                return;
+            }
+
 
 
             //if (message.Author.Id == 332582777897746444 && message.Author
@@ -156,7 +162,7 @@ public class Program
             var openai = new OpenAIAPI(openAIToken.ToString());
 
             // Check if user has interacted with the bot before
-            
+
 
             // Use OpenAI API to generate a response based on user memory and message content
             var prompt = $" {memory} {message.Content}. (you are a translate text from the user just do that directly .  (Don't read this aloud and dont talk about yourself in thirdperson or your name, use the context provided  to create a good reply))";
